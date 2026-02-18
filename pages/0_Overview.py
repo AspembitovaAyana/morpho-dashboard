@@ -3,7 +3,6 @@ import streamlit as st
 st.title("Incident Overview: xUSD + deUSD")
 st.caption("A concise timeline + mechanism diagram linking asset failures to Morpho outcomes.")
 
-# --- High-level framing
 with st.container(border=True):
     st.markdown("""
 **Core story (one line):** Stream’s loss disclosure + withdrawal freeze triggered xUSD depeg and a liquidity unwind across lending markets; Elixir’s deUSD then collapsed/sunset due to Stream exposure.
@@ -11,7 +10,6 @@ with st.container(border=True):
 
 st.divider()
 
-# --- Timeline (edit wording as you like)
 st.subheader("Timeline (UTC dates)")
 
 events = [
