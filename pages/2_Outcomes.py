@@ -24,7 +24,7 @@ st.link_button(
 
 st.subheader("Market Configs preview")
 
-DATA_PATH = "data/api/market_configs.csv"  # <-- change to your actual filename
+DATA_PATH = "data/api/market_configs.csv" 
 
 @st.cache_data
 def load_contagion_csv(path: str) -> pd.DataFrame:
@@ -65,7 +65,6 @@ with st.expander("Filters", expanded=False):
             end_dt = pd.to_datetime(dr[1]) + pd.Timedelta(days=1)
             dfc = dfc[(dfc["date"] >= start_dt) & (dfc["date"] < end_dt)]
 
-# Preview controls
 c1, c2, c3 = st.columns([1, 1, 2])
 with c1:
     n = st.number_input("Rows", min_value=10, max_value=2000, value=50, step=10)
