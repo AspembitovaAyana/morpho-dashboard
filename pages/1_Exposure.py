@@ -98,15 +98,11 @@ def plot_chain_by_asset(df_chain: pd.DataFrame, chain: str, value_col="exposure_
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-    # keep legend readable
     ax.legend(frameon=False, fontsize=8, ncol=2)
 
     st.pyplot(fig, use_container_width=True, clear_figure=True)
 
 
-# -----------------------
-# UI
-# -----------------------
 st.title("Exposure by Chain")
 st.caption("Small multiples: total supply exposure (USD) per chain (sum across collaterals).")
 
@@ -179,12 +175,12 @@ for i in range(0, len(chains_to_render), cards_per_row):
                     roll_days=roll_days
                 )
 
-                # Dropdown under each card = by asset
+               
                 with st.expander("By asset (collateral)", expanded=False):
                     plot_chain_by_asset(df_chain=df_chain, chain=chain)
 
 # =========================================================
-# Exposure by Markets (ADD BELOW YOUR CHAINS SECTION)
+# Exposure by Markets 
 # =========================================================
 
 st.header("Exposure by Market")
@@ -207,7 +203,6 @@ def load_markets_data(path: str) -> pd.DataFrame:
     if "Unnamed: 0" in dfm.columns:
         dfm = dfm.drop(columns=["Unnamed: 0"])
 
-    # Required columns in YOUR file
     required = ["date", "market_uniqueKey", "supplyAssetsUsd"]
     missing = [c for c in required if c not in dfm.columns]
     if missing:
@@ -216,11 +211,9 @@ def load_markets_data(path: str) -> pd.DataFrame:
     dfm["date"] = pd.to_datetime(dfm["date"], errors="coerce")
     dfm = dfm.dropna(subset=["date"])
 
-    # Normalize
     dfm["market_id"] = dfm["market_uniqueKey"].astype(str)
     dfm["exposure_supplyUsd"] = pd.to_numeric(dfm["supplyAssetsUsd"], errors="coerce").fillna(0.0)
 
-    # Optional columns
     for c in ["chain_network", "collateral_symbol", "chain_id"]:
         if c in dfm.columns:
             dfm[c] = dfm[c].astype(str)
@@ -244,7 +237,6 @@ def plot_market_total_card(ts: pd.DataFrame, title: str) -> None:
     ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
 
-    # Use your dark styling function if it exists (from chains section)
     try:
         apply_mpl_dark(ax)
     except NameError:
@@ -255,35 +247,29 @@ def plot_market_total_card(ts: pd.DataFrame, title: str) -> None:
     st.pyplot(fig, use_container_width=True, clear_figure=True)
 
 
-# ---- Load markets data
 dfm = load_markets_data(MARKETS_PATH)
 
-# ---- Reuse your existing date filter if you have start_date/end_date from chains
 try:
     dfm = dfm[(dfm["date"] >= start_date) & (dfm["date"] < end_date)].copy()
 except NameError:
     pass
 
-# ---- Filter to exposed markets
 dfm = dfm[dfm["market_id"].isin(EXPOSED_MARKETS)].copy()
 
 if dfm.empty:
     st.warning("No market exposure data for the selected filters/date range.")
 else:
-    # Total exposure per market per day (sum across collaterals + chains)
     market_totals = (
         dfm.groupby(["market_id", "date"], as_index=False)["exposure_supplyUsd"]
         .sum()
         .sort_values(["market_id", "date"])
     )
 
-    # Same grid size as chains if you already have cards_per_row; else default 3
     try:
         cards_per_row = cards_per_row
     except NameError:
         cards_per_row = 3
 
-    # Render in stable order of EXPOSED_MARKETS
     markets_to_render = [m for m in EXPOSED_MARKETS if m in set(market_totals["market_id"])]
 
     for i in range(0, len(markets_to_render), cards_per_row):
@@ -297,7 +283,6 @@ else:
                     label = f"{mid[:6]}…{mid[-4:]}"
                     plot_market_total_card(ts, label)
 
-                    # Optional collateral breakdown (hidden)
                     if "collateral_symbol" in dfm.columns:
                         with st.expander("Collateral breakdown", expanded=False):
                             fig2, ax2 = plt.subplots(figsize=(8.5, 3.3), dpi=150)
@@ -326,8 +311,6 @@ else:
 # Exposure by Vault (from TS_vaults_long1.csv)
 # =========================================================
 
-import numpy as np  # make sure numpy is imported at top; safe to re-import
-
 VAULTS_PATH = "data/api/TS_vaults_long1.csv"  # <-- update path if needed
 
 
@@ -335,11 +318,9 @@ VAULTS_PATH = "data/api/TS_vaults_long1.csv"  # <-- update path if needed
 def load_vaults(path: str) -> pd.DataFrame:
     df = pd.read_csv(path)
 
-    # drop accidental index col
     if "Unnamed: 0" in df.columns:
         df = df.drop(columns=["Unnamed: 0"])
 
-    # required columns (based on your screenshot)
     required = ["date", "vault_address", "vault_name", "market_uniqueKey", "vault_supplyUsd"]
     missing = [c for c in required if c not in df.columns]
     if missing:
@@ -382,7 +363,6 @@ def plot_vault_card(vdf: pd.DataFrame, vault_addr: str, title: str = None):
     ax.set_xlabel("")
     ax.set_ylabel("")
 
-    # reuse your helpers if they exist; otherwise keep minimal
     ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
     ax.spines["top"].set_visible(False)
@@ -409,7 +389,7 @@ def market_vault_shares(vdf: pd.DataFrame) -> pd.DataFrame:
 
 
 # =========================================================
-# EXPOSURE BY VAULTS — FULLY SELF-CONTAINED BLOCK
+# EXPOSURE BY VAULTS 
 # =========================================================
 
 import numpy as np
@@ -609,7 +589,7 @@ st.header("Relative Exposure vs Chain TVL")
 # 1️⃣ MANUAL INPUT: Chain TVL
 # -----------------------------
 CHAIN_TVL = {
-    "Arbitrum": 410_838_783,   # <-- edit these
+    "Arbitrum": 410_838_783,   
     "ethereum": 6_232_876_939,
     "Plume": 167_389_913,
 }
