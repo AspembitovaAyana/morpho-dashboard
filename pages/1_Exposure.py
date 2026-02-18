@@ -668,7 +668,7 @@ for chain, g in chain_ts.groupby("chain_network"):
         g["share_pct"].to_numpy(),
         label=chain,
         alpha=0.9
-    )
+    ) 
 
 ax.set_ylabel("% of Chain TVL")
 ax.set_xlabel("")
