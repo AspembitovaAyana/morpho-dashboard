@@ -83,6 +83,14 @@ with col2:
     """
     )
 
+    st.markdown(
+    """
+    **Contagion Overview Page**
+    - Evolution of AUM across curators
+    - Affected vaults with no direct exposure to xUSD/deUSD
+    """
+    )
+
 st.divider()
 
 # =========================================================
