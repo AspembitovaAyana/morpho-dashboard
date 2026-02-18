@@ -6,7 +6,7 @@ st.caption("A concise timeline + mechanism diagram linking asset failures to Mor
 # --- High-level framing
 with st.container(border=True):
     st.markdown("""
-**Core story (one line):** Stream’s loss disclosure + withdrawal freeze triggered xUSD depeg and a liquidity unwind across lending markets; Elixir’s deUSD then collapsed/sunset due to Stream exposure; Morpho vaults reduced exposure, with bad debt realized in specific vault/market paths.
+**Core story (one line):** Stream’s loss disclosure + withdrawal freeze triggered xUSD depeg and a liquidity unwind across lending markets; Elixir’s deUSD then collapsed/sunset due to Stream exposure.
 """)
 
 st.divider()
