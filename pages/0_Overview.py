@@ -4,13 +4,15 @@ import pandas as pd
 st.title("Incident Overview: xUSD + deUSD")
 st.caption("A concise timeline + mechanism diagram linking asset failures to Morpho outcomes.")
 
+# --- High-level framing
 with st.container(border=True):
     st.markdown("""
-**Core story (one line):** Stream’s loss disclosure + withdrawal freeze triggered xUSD depeg and a liquidity unwind across lending markets; Elixir’s deUSD then collapsed/sunset due to Stream exposure.
+**Core story (one line):** Stream’s loss disclosure + withdrawal freeze triggered xUSD depeg and a liquidity unwind across lending markets; Elixir’s deUSD then collapsed/sunset due to Stream exposure; Morpho vaults reduced exposure, with bad debt realized in specific vault/market paths.
 """)
 
 st.divider()
 
+# --- Timeline (edit wording as you like)
 st.subheader("Timeline (UTC dates)")
 
 events = [
@@ -24,6 +26,44 @@ events = [
 
 for d, txt in events:
     st.markdown(f"**{d}** — {txt}")
+
+st.divider()
+
+# --- Mechanism diagram (Mermaid)
+st.subheader("Mechanism diagram")
+
+st.markdown("Paste this diagram into your write-up; it shows the causal chain clearly.")
+
+st.code(r"""
+flowchart TD
+  A[Stream: loss disclosure + withdrawals paused] --> B[xUSD depegs]
+  B --> C[Lending markets unwind: pools drained, utilization spikes]
+  C --> D[Liquidations struggle: oracle lag/bounds + thin liquidity + keeper economics]
+  D --> E[Bad debt crystallizes in specific markets/vault paths]
+
+  A --> F[Elixir exposure to Stream impairs backing]
+  F --> G[deUSD depegs / sunset announced]
+  G --> H[Morpho curators remove/zero allocations to affected markets]
+  H --> I[Vault-level bad-debt realization / withdrawal queue effects]
+""", language="text")
+
+st.divider()
+
+# --- Where to look in your dashboard
+st.subheader("Where this dashboard answers what")
+c1, c2, c3 = st.columns(3)
+with c1:
+    with st.container(border=True):
+        st.markdown("### Exposure")
+        st.markdown("- By chain\n- By market\n- By collateral\n- By vault/curator")
+with c2:
+    with st.container(border=True):
+        st.markdown("### Behavior")
+        st.markdown("- Curator exits/reallocations\n- Timing vs depeg window\n- Liquidity stress signals")
+with c3:
+    with st.container(border=True):
+        st.markdown("### Outcomes (Dune)")
+        st.markdown("- Liquidations\n- Bad debt\n- Cross-check evidence")
 
 st.divider()
 
@@ -80,4 +120,51 @@ st.info("""
 xUSD/USDC Arbitrum market. The $68M Plume vault was private and non-whitelisted. 
 The $25.4M worst-case never materialized because the oracle never updated.
 Morpho's isolation architecture contained the damage to a single market.
+""")
+
+st.header("How Morpho Works")
+ 
+st.markdown("""
+Morpho Blue is a permissionless lending protocol built around **isolated markets**.
+Each market is defined by a single collateral/loan pair, an oracle, and an LLTV parameter.
+Markets are grouped into vaults managed by curators who decide capital allocation and risk parameters.
+""")
+ 
+st.graphviz_chart("""
+digraph architecture {
+    rankdir=LR
+    node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11]
+    edge [fontsize=10]
+ 
+    Depositor [label="Depositor\n(e.g. USDC)", fillcolor="#dbeafe"]
+    Vault     [label="MetaMorpho Vault\n(e.g. MEV Capital USDC)", fillcolor="#e0f2fe"]
+    Curator   [label="Curator\n(Risk Manager)", fillcolor="#fef9c3"]
+    Market1   [label="Market A\nxUSD / USDC", fillcolor="#fee2e2"]
+    Market2   [label="Market B\nwstETH / USDC", fillcolor="#dcfce7"]
+    Market3   [label="Market C\nsdeUSD / USDC", fillcolor="#fee2e2"]
+    Borrower  [label="Borrower", fillcolor="#f3e8ff"]
+ 
+    Depositor -> Vault    [label="deposits"]
+    Vault -> Curator      [label="managed by"]
+    Curator -> Market1    [label="allocates"]
+    Curator -> Market2    [label="allocates"]
+    Curator -> Market3    [label="allocates"]
+    Market1 -> Borrower   [label="lends USDC"]
+    Market2 -> Borrower   [label="lends USDC"]
+    Market3 -> Borrower   [label="lends USDC"]
+ 
+    Isolation [label="Bad debt in Market A\ndoes NOT affect Market B or C",
+               shape=note, fillcolor="#fef3c7", fontsize=10]
+    Market1 -> Isolation [style=dashed, color="#ef4444"]
+}
+""")
+ 
+st.markdown("""
+**Key parameters per market:**  
+- **LLTV** — maximum LTV before liquidation triggers  
+- **Oracle** — prices the collateral asset  
+- **Collateral / Loan token** — defines the market pair  
+ 
+Liquidation is triggered when `borrowAssets / (collateralAssets × oracle_price) > LLTV`.
+The oracle is therefore the critical link between market price and protocol risk controls.
 """)
