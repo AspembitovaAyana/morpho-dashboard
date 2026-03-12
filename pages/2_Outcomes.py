@@ -195,3 +195,53 @@ st.info("""
 - Result: oracle stays pinned at pre-depeg levels indefinitely, preventing liquidations
 """)
 
+
+st.subheader("Liquidation Flow — How It Should Work vs What Happened")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("**Normal liquidation path**")
+    st.graphviz_chart("""
+    digraph normal {
+        rankdir=TB
+        node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11]
+        edge [fontsize=10]
+
+        Borrower  [label="Borrower posts collateral", fillcolor="#dbeafe"]
+        Oracle    [label="Oracle prices collateral", fillcolor="#fef9c3"]
+        Check     [label="LTV Check\nborrow / (collateral × price)", fillcolor="#e0f2fe"]
+        Safe      [label="✓ Position Safe", fillcolor="#dcfce7"]
+        Liquidate [label="⚡ Liquidation\nLiquidator repays debt\nreceives collateral + bonus", fillcolor="#dcfce7"]
+
+        Borrower -> Oracle   [label="price collateral"]
+        Oracle   -> Check    [label="returns market price"]
+        Check    -> Safe     [label="LTV < LLTV"]
+        Check    -> Liquidate [label="LTV > LLTV"]
+    }
+    """)
+
+with col2:
+    st.markdown("**xUSD depeg — what actually happened**")
+    st.graphviz_chart("""
+    digraph broken {
+        rankdir=TB
+        node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11]
+        edge [fontsize=10]
+
+        Borrower  [label="Borrower posts xUSD", fillcolor="#dbeafe"]
+        Oracle    [label="Oracle calls\nvault.convertToAssets()\nreturns \$1.266 ✗", fillcolor="#fee2e2"]
+        Check     [label="LTV Check\nLTV appears safe on-chain", fillcolor="#fee2e2"]
+        Safe      [label="✗ Position 'Safe'\nbut collateral is worthless", fillcolor="#fee2e2"]
+        BadDebt   [label="Bad Debt Crystallizes\n$628K unrealized", fillcolor="#fee2e2"]
+
+        Frozen    [label="Stream pauses withdrawals\nNAV never written down\nNo staleness check in contract",
+                   shape=note, fillcolor="#fef3c7", fontsize=10]
+
+        Borrower -> Oracle  [label="price collateral"]
+        Oracle   -> Check   [label="stale price"]
+        Check    -> Safe    [label="LTV < LLTV (wrong)"]
+        Safe     -> BadDebt [label="no liquidation triggered"]
+        Oracle   -> Frozen  [style=dashed, color="#ef4444"]
+    }
+    """)
