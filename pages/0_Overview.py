@@ -14,7 +14,6 @@ st.divider()
 
 # --- Timeline (edit wording as you like)
 st.subheader("Timeline (UTC dates)")
-
 events = [
     ("Nov 3–4, 2025", "Stream discloses ~$93M loss and pauses withdrawals/deposits → xUSD begins sharp depeg."),
     ("Nov 4–7, 2025", "Contagion: lending pools drain / utilization spikes; liquidations struggle (oracle + liquidity + keeper incentives)."),
@@ -26,26 +25,6 @@ events = [
 
 for d, txt in events:
     st.markdown(f"**{d}** — {txt}")
-
-st.divider()
-
-# --- Mechanism diagram (Mermaid)
-st.subheader("Mechanism diagram")
-
-st.markdown("Paste this diagram into your write-up; it shows the causal chain clearly.")
-
-st.code(r"""
-flowchart TD
-  A[Stream: loss disclosure + withdrawals paused] --> B[xUSD depegs]
-  B --> C[Lending markets unwind: pools drained, utilization spikes]
-  C --> D[Liquidations struggle: oracle lag/bounds + thin liquidity + keeper economics]
-  D --> E[Bad debt crystallizes in specific markets/vault paths]
-
-  A --> F[Elixir exposure to Stream impairs backing]
-  F --> G[deUSD depegs / sunset announced]
-  G --> H[Morpho curators remove/zero allocations to affected markets]
-  H --> I[Vault-level bad-debt realization / withdrawal queue effects]
-""", language="text")
 
 st.divider()
 
