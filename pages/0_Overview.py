@@ -28,24 +28,6 @@ for d, txt in events:
 
 st.divider()
 
-# --- Where to look in your dashboard
-st.subheader("Where this dashboard answers what")
-c1, c2, c3 = st.columns(3)
-with c1:
-    with st.container(border=True):
-        st.markdown("### Exposure")
-        st.markdown("- By chain\n- By market\n- By collateral\n- By vault/curator")
-with c2:
-    with st.container(border=True):
-        st.markdown("### Behavior")
-        st.markdown("- Curator exits/reallocations\n- Timing vs depeg window\n- Liquidity stress signals")
-with c3:
-    with st.container(border=True):
-        st.markdown("### Outcomes (Dune)")
-        st.markdown("- Liquidations\n- Bad debt\n- Cross-check evidence")
-
-st.divider()
-
 st.header("Bad Debt — Reconciliation Across Sources")
 
 st.markdown("""
