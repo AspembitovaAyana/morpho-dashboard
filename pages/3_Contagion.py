@@ -54,7 +54,6 @@ with col1:
     st.subheader("Ethereum vault — USDC Prime")
     st.markdown("""
 `0xf1fd8ac...` — MEV Capital USDC Prime (Ethereum)  
-**Collateral: USDC. No xUSD or deUSD exposure.**
 
 This vault was **fully exited by August 2025** — roughly 3 months before the November event.
 The drawdown happened well before any public signal of xUSD stress, which raises a key question:
@@ -71,7 +70,6 @@ with col2:
     st.subheader("Arbitrum vault — USDC")
     st.markdown("""
 `0xa60643c...` — MEV Capital USDC (Arbitrum)  
-**Collateral: USDC. No xUSD or deUSD exposure.**
 
 This vault grew rapidly from September 2025, peaked at **~$50M in November**, 
 then collapsed to near zero within weeks — despite having **zero direct exposure** 
